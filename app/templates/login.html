@@ -1,0 +1,102 @@
+<!-- templates/login.html -->
+
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+        body {
+            min-height: 100vh;
+            background: rgb(2,0,36);
+background: linear-gradient(115deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 16%, rgba(0,212,255,1) 100%);
+
+        }
+
+        .navbar {
+            background: transparent;
+        }
+
+        .box {
+            color: #fff;
+            background: rgba(80, 113, 191, 0.8);
+            backdrop-filter: blur(2px);
+            border-radius: 10px;
+        }
+
+        a p h3 {
+            color: #fff;
+        }
+
+        .label {
+            color: #fff;
+        }
+
+        .title {
+            color: #fff;
+        }
+
+        .navbar {
+            box-shadow: none;
+        }
+
+        #header {
+            display: none !important;
+        }
+
+        #sidebar {
+            display: none !important;
+        }
+    #main{
+        margin: 0px !important;
+        margin-left: 0 !important;
+        text-align: center;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+        <div class="shape1"></div>
+        <div class="shape2"></div>
+        <div class="shape3"></div>
+        <div class="shape5"></div>
+        <div class="shape6"></div>
+
+        <div class="box" style="text-align: center;z-index: 1">
+        <h3 class="title">Авторизация</h3>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% if messages[0] == "Please log in to access this page" %}
+        {% else %}
+        <div class="notification is-danger">
+            {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST" action="/login">
+            <div class="field">
+                <div class="control">
+                    <p class="label">Логин</p>
+                    <input class="input" type="text" name="login" placeholder="Логин">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <p class="label">Пароль</p>
+                    <input class="input" type="password" name="password" placeholder="Пароль">
+                </div>
+            </div>
+            <div class="field">
+                <label class="checkbox" class="label">
+                    <input type="checkbox" name="remember">
+                    Запомнить меня
+                </label>
+            </div>
+            <button name="type" value="1" class="button is-block is-info is-fullwidth" style="background-color: #002DA9;">Войти как Клиент</button><br>
+            <button name="type" value="2" class="button is-block is-info is-fullwidth" style="background-color: #002DA9;">Войти как Менеджер</button><br>
+            <button name="type" value="3" class="button is-block is-info is-fullwidth" style="background-color: #002DA9;">Войти как Администратор</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

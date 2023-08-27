@@ -1,0 +1,166 @@
+<!-- templates/stats.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+        .card-title {
+            font-size: 16px;
+        }
+
+        .form-control {
+            font-size: 12px;
+        }
+
+        .btn {
+            font-size: 12px;
+        }
+
+
+        .tab.active {
+            background-color: #5071BF4D !important;
+        }
+
+
+        .tab:hover {
+            background-color: #5071BF4D !important;
+        }
+
+        tr.active {
+            background-color: #5071BF4D !important;
+        }
+
+        p {
+            font-size: 12px;
+        }
+
+
+        tr:hover {
+            background-color: #5071BF4D !important;
+        }
+
+        table {
+            margin-top: 40px;
+        }
+
+        th div {
+            margin-top: -40px;
+            position: absolute;
+        }
+
+        /* design */
+        table {
+            border-collapse: collapse;
+        }
+
+        tr:nth-child(even) {
+            background: #EEE;
+        }
+
+        p.mytabs {
+            font-size: 16px;
+            margin: 1;
+        }
+        table thead th {
+        white-space: nowrap;
+        font-size: 14px;
+        }
+        table tbody tr {
+        white-space: nowrap;
+        font-size: 14px;
+        }
+
+
+</style>
+<h1 class="title">История</h1>
+<div class="row">
+    <div class="col-xl-12">
+        <form method="POST" action="{{ url_for('main.sales') }}" class="row">
+            <div class="col-lg-2">
+                <input class="form-control col" type="text" name="object" value="{{ object }}" placeholder="Объект">
+            </div>
+            {% if current_user.role in [2, 3] %}
+                <div class="col-lg-2">
+                    <input class="form-control col" type="text" name="client" value="{{ client }}" placeholder="Клиент">
+                </div>
+                {% if current_user.role == 3 %}
+                    <div class="col-lg-1">
+                        <input class="form-control col" type="text" name="manager" value="{{ manager }}" placeholder="Менеджер">
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="col-lg-2">
+                <input class="form-control col" type="date" name="start" format="dd/mm/yyyy" value="{{ start }}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control col" type="date" name="finish" format="dd/mm/yyyy" value="{{ finish }}">
+            </div>
+            <div class="col-lg-{% if current_user.role in [3, 2] %}1{%else%}2{%endif%}">
+                <input class="form-control col" type="text" name="comment" value="{{ comment }}" placeholder="Комментарий">
+            </div>
+            {% if not filtered %}
+            <div class="col-lg-2">
+                <button class="btn btn-info">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            {% else %}
+            <div class="col-lg-1">
+                <div style="display: flex">
+                <button class="btn btn-info">
+                    <i class="bi bi-search"></i>
+                </button>
+                 <a href="{{ url_for('main.sales') }}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+                    </div>
+            </div>
+            <div class="col-lg-1">
+
+            </div>
+            {% endif %}
+        </form>
+    </div>
+    <div class="card" style="overflow-x:auto;">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Объект</th>
+                {% if current_user.role in [2, 3] %}
+                    <th scope="col">Клиент</th>
+                    {% if current_user.role == 3 %}
+                        <th scope="col">Менеджер</th>
+                    {% endif %}
+                {% endif %}
+                <th scope="col">Время платежа</th>
+                <th scope="col">Сумма</th>
+                <th scope="col">Начало периода</th>
+                <th scope="col">Конец периода</th>
+                <th scope="col">Комментарий</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in data %}
+            <tr>
+                <td>{{ i.id }}</td>
+                <td>{{ i.object }}</td>
+                {% if current_user.role in [2, 3] %}
+                    <td>{{ i.client }}</td>
+                    {% if current_user.role == 3 %}
+                        <td>{{ i.manager }}</td>
+                    {% endif %}
+                {% endif %}
+                <td>{{ i.registered }}</td>
+                <td>{{ i.amount }}</td>
+                <td>{{ i.start }}</td>
+                <td>{{ i.end }}</td>
+                <td>{{ i.comment }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

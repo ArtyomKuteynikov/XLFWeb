@@ -1,0 +1,125 @@
+<!-- templates/stats.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <style>
+
+        .card-title {
+            font-size: 16px;
+        }
+
+        .form-control {
+            font-size: 12px;
+        }
+
+        .btn {
+            font-size: 12px;
+        }
+
+        .tab.active {
+            background-color: #5071BF4D !important;
+        }
+
+
+        .tab:hover {
+            background-color: #5071BF4D !important;
+        }
+
+        tr.active {
+            background-color: #5071BF4D !important;
+        }
+
+        p {
+            font-size: 12px;
+        }
+
+
+        tr:hover {
+            background-color: #5071BF4D !important;
+        }
+
+        table {
+            margin-top: 40px;
+        }
+
+        th div {
+            margin-top: -40px;
+            position: absolute;
+        }
+
+        /* design */
+        table {
+            border-collapse: collapse;
+        }
+
+        tr:nth-child(even) {
+            background: #EEE;
+        }
+        table thead th {
+        white-space: nowrap;
+        font-size: 14px;
+        }
+        table tbody tr {
+        white-space: nowrap;
+        font-size: 14px;
+        }
+        p.mytabs {
+            font-size: 16px;
+            margin: 1;
+        }
+
+        h6 {
+            margin: 0;
+        }
+
+    </style>
+    <h1 class="title">Объекты</h1>
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body pt-3">
+                    <div style="overflow-x:auto;">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">№</th>
+                                <th scope="col">Адрес</th>
+                                <th scope="col">ФИО</th>
+                                <th scope="col">Номер телефона</th>
+                                <th scope="col">E-mail</th>
+                                <th scope="col">Дата окончания подписки</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in objects %}
+                                <tr>
+                                    <td>
+                                        {{ i.id }}
+                                    </td>
+                                    <td>
+                                        {{ i.address }}
+                                    </td>
+                                    <td>
+                                        {{ i.name }}
+                                    </td>
+                                    <td>
+                                        {{ i.phone }}
+                                    </td>
+                                    <td>
+                                        {{ i.email }}
+                                    </td>
+                                    <td>
+                                        {{ i.end }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
