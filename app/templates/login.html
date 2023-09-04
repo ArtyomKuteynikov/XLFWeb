@@ -65,7 +65,7 @@ background: linear-gradient(115deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 16%, rgba
         <h3 class="title">Авторизация</h3>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        {% if messages[0] == "Please log in to access this page" %}
+        {% if "Please" in messages[0] %}
         {% else %}
         <div class="notification is-danger">
             {{ messages[0] }}

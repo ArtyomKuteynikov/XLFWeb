@@ -72,61 +72,78 @@
 
 
 </style>
-<h1 class="title">История</h1>
 <div class="row">
     <div class="col-xl-12">
         <form method="POST" action="{{ url_for('main.sales') }}" class="row">
-            <div class="col-lg-2">
-                <input class="form-control col" type="text" name="object" value="{{ object }}" placeholder="Объект">
+            <div class="col-lg-1">
+                <label for="object">Объект</label>
+                <input class="form-control col" id="object" type="text" name="object" value="{{ object }}" placeholder="Объект">
             </div>
             {% if current_user.role in [2, 3] %}
-                <div class="col-lg-2">
-                    <input class="form-control col" type="text" name="client" value="{{ client }}" placeholder="Клиент">
+                <div class="col-lg-1">
+                    <label for="client">Клиент</label>
+                    <input class="form-control col" type="text" id="client" name="client" value="{{ client }}" placeholder="Клиент">
                 </div>
                 {% if current_user.role == 3 %}
                     <div class="col-lg-1">
-                        <input class="form-control col" type="text" name="manager" value="{{ manager }}" placeholder="Менеджер">
+                        <label for="manager">Менеджер</label>
+                        <input class="form-control col" type="text" id="manager" name="manager" value="{{ manager }}" placeholder="Менеджер">
                     </div>
                 {% endif %}
             {% endif %}
-            <div class="col-lg-2">
-                <input class="form-control col" type="date" name="start" format="dd/mm/yyyy" value="{{ start }}">
+            <div class="col-lg-1">
+                <label for="payed">Дата</label>
+                <input class="form-control col" type="date" id="payed" name="payed" format="dd/mm/yyyy" value="{{ date }}">
+            </div>
+            <div class="col-lg-1">
+                <label for="amount">Сумма</label>
+                <input class="form-control col" type="number" name="amount" id="amount" value="{{ amount }}" placeholder="Сумма">
             </div>
             <div class="col-lg-2">
-                <input class="form-control col" type="date" name="finish" format="dd/mm/yyyy" value="{{ finish }}">
+                <label for="start">Начало периода</label>
+                <input class="form-control col" type="date" id="start" name="start" format="dd/mm/yyyy" value="{{ start }}">
             </div>
-            <div class="col-lg-{% if current_user.role in [3, 2] %}1{%else%}2{%endif%}">
-                <input class="form-control col" type="text" name="comment" value="{{ comment }}" placeholder="Комментарий">
+            <div class="col-lg-2">
+                <label for="end">Конец периода</label>
+                <input class="form-control col" type="date" id="end" name="finish" format="dd/mm/yyyy" value="{{ finish }}">
+            </div>
+            <div class="col-lg-1">
+                <label for="comment">Комментарий</label>
+                <input class="form-control col" type="text" name="comment" id="comment" value="{{ comment }}" placeholder="Комментарий">
             </div>
             {% if not filtered %}
-            <div class="col-lg-2">
-                <button class="btn btn-info">
+            <div class="col-lg-1" style="
+    margin-top: 26px;
+">
+                <button id="123" class="btn btn-info">
                     <i class="bi bi-search"></i>
                 </button>
             </div>
             {% else %}
-            <div class="col-lg-1">
-                <div style="display: flex">
+            <div class="col-lg-1" style="
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 26px;
+">
                 <button class="btn btn-info">
                     <i class="bi bi-search"></i>
                 </button>
                  <a href="{{ url_for('main.sales') }}" class="btn btn-danger">
                     <i class="bi bi-x-circle"></i>
                 </a>
-                    </div>
-            </div>
-            <div class="col-lg-1">
-
             </div>
             {% endif %}
         </form>
     </div>
     <div class="card" style="overflow-x:auto;">
-        <table class="table">
+        <table class="table"
+              id="table">
             <thead>
             <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Объект</th>
+                <th scope="col">ID<br> </th>
+                <th data-filter-control="input">Объект</th>
                 {% if current_user.role in [2, 3] %}
                     <th scope="col">Клиент</th>
                     {% if current_user.role == 3 %}
