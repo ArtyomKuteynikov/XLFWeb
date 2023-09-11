@@ -3,122 +3,675 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <style>
+<style>
 
-        .card-title {
-            font-size: 16px;
-        }
+    .modal-body {
+        text-align: center;
+    }
 
-        .form-control {
-            font-size: 12px;
-        }
+    .card-title {
+        font-size: 16px;
+    }
 
-        .btn {
-            font-size: 12px;
-        }
+    .form-control {
+        font-size: 12px;
+    }
 
-        .tab.active {
-            background-color: #5071BF4D !important;
-        }
+    .form-select {
+        font-size: 12px;
+    }
 
+    .btn {
+        font-size: 12px;
+    }
 
-        .tab:hover {
-            background-color: #5071BF4D !important;
-        }
-
-        tr.active {
-            background-color: #5071BF4D !important;
-        }
-
-        p {
-            font-size: 12px;
-        }
+    .tab.active {
+        background-color: #5071BF4D !important;
+    }
 
 
-        tr:hover {
-            background-color: #5071BF4D !important;
-        }
+    .tab:hover {
+        background-color: #5071BF4D !important;
+    }
 
-        table {
-            margin-top: 40px;
-        }
+    tr.active {
+        background-color: #5071BF4D !important;
+    }
 
-        th div {
-            margin-top: -40px;
-            position: absolute;
-        }
+    p {
+        font-size: 12px;
+    }
 
-        /* design */
-        table {
-            border-collapse: collapse;
-        }
 
-        tr:nth-child(even) {
-            background: #EEE;
-        }
-        table thead th {
-        white-space: nowrap;
-        font-size: 14px;
-        }
-        table tbody tr {
-        white-space: nowrap;
-        font-size: 14px;
-        }
-        p.mytabs {
-            font-size: 16px;
-            margin: 1;
-        }
+    tr:hover {
+        background-color: #5071BF4D !important;
+    }
 
-        h6 {
-            margin: 0;
-        }
+    table {
+        margin-top: 40px;
+    }
 
-    </style>
-    <div class="row">
-        <div class="col-xl-12">
-            <div class="card">
-                <div class="card-body pt-3">
-                    <div style="overflow-x:auto;">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th scope="col">№</th>
-                                <th scope="col">Адрес</th>
-                                <th scope="col">ФИО</th>
-                                <th scope="col">Номер телефона</th>
-                                <th scope="col">E-mail</th>
-                                <th scope="col">Дата окончания подписки</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for i in objects %}
-                                <tr>
-                                    <td>
-                                        {{ i.id }}
-                                    </td>
-                                    <td>
-                                        {{ i.address }}
-                                    </td>
-                                    <td>
-                                        {{ i.name }}
-                                    </td>
-                                    <td>
-                                        {{ i.phone }}
-                                    </td>
-                                    <td>
-                                        {{ i.email }}
-                                    </td>
-                                    <td>
-                                        {{ i.end }}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+    th div {
+        margin-top: -40px;
+        position: absolute;
+    }
+
+    /* design */
+    table {
+        border-collapse: collapse;
+    }
+
+    tr:nth-child(even) {
+        background: #EEE;
+    }
+    table thead th {
+    white-space: nowrap;
+    font-size: 14px;
+    }
+    table tbody tr {
+    white-space: nowrap;
+    font-size: 14px;
+    }
+    p.mytabs {
+        font-size: 16px;
+        margin: 1;
+    }
+
+    h6 {
+        margin: 2.5%;
+    }
+    .menu.btn {
+    margin: 5px
+    }
+    .floating {
+    position: fixed;
+    top: 7%;
+    right: 5%;
+    z-index: 1;
+    opacity: 80%;
+    }
+
+</style>
+<div id="error-field-float" class="alert alert-danger floating d-none"></div>
+{% if current_user.role == 2 %}
+<div style="
+    text-align: center;
+    display: flex;
+">
+    <div class="col-lg-6">
+        <div class="card tab"
+             onclick="window.location.href='/clients'; return false">
+            <div class="">
+                <h6>Клиенты</h6>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card tab active"
+             onclick="window.location.href='/objects'; return false">
+            <div class="">
+                <h6>Объекты</h6>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body pt-3">
+                <div style="overflow-x:auto;">
+                    {% if current_user.role == 2 %}
+                    <div style="text-align: left; display: flex;">
+                        <button class="menu btn btn-success" onclick="openAddObjectModal()">Создать</button>
+                        <button class="menu btn btn-warning" onclick="openEditObjectModal()">Редактировать</button>
+                        <button class="menu btn btn-danger" onclick="openDeleteObjectsModal()">Удалить</button>
+                        <button class="menu btn btn-info" onclick="openIDObjectModal()">Загрузить файл идентификации</button>
+                        <button class="menu btn btn-primary" onclick="openPayObjectModal()">Оплатить</button>
                     </div>
+                    {% endif %}
+                    <table class="table" id="table">
+                        <thead>
+                        <tr>
+                            {% if current_user.role == 2 %} <th scope="col"><input type="checkbox" id="selectAllObjects"></th> {% endif %}
+                            <th scope="col">№</th>
+                            <th scope="col" style="min-width: 200px">Клиент<br>
+                                <select class="form-select" onchange="filterTable()" id="client">
+                                    <option value="ВСЕ">Все</option>
+                                    {% for i in users %}
+                                        <option value="{{ i.name }}">{{ i.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </th>
+                            <th scope="col">Адрес</th>
+                            <th scope="col">ФИО</th>
+                            <th scope="col">Номер телефона</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Дата окончания подписки</th>
+                            {% if current_user.role == 2 %}<th scope="col">Файл</th>{% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for j, i in enumerate(objects) %}
+                        <tr>
+                            {% if current_user.role == 2 %} <td><input type="checkbox" class="selectObjectCheckbox"></td> {% endif %}
+                            <td style="display: none">{{ i.id }}</td>
+                            <td>{{ j + 1 }}</td>
+                            <td>{{ i.client }}</td>
+                            <td>
+                                {{ i.address }}
+                            </td>
+                            <td>
+                                {{ i.name }}
+                            </td>
+                            <td>
+                                {{ i.phone }}
+                            </td>
+                            <td>
+                                {{ i.email }}
+                            </td>
+                            <td>
+                                {{ i.end }}
+                            </td>
+                            {% if current_user.role == 2 %}<td>
+                                {% if i.ident %}<a href="{{ i.ident }}" target="_blank" class="is-rounded btn btn-primary"><i class="bi bi-download"></i></a>{% endif %}
+                            </td>{% endif %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<div class="modal fade" id="addObjectModal" tabindex="-1" role="dialog" aria-labelledby="addObjectModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addObjectModalLabel">Добавить объект</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-add" class="alert alert-danger d-none"></div>
+                <form id="addObjectForm">
+                    <div class="form-group">
+                        <label for="addAddress">Клиент:</label>
+                        <select type="text" class="form-select" id="addClient" name="client" placeholder="Клиент" required>
+                            {% for i in users %}
+                                <option value="{{ i.id }}">{{ i.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="addAddress">Адрес:</label>
+                        <input type="text" class="form-control" id="addAddress" name="address" placeholder="Адрес" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addName">ФИО:</label>
+                        <input type="text" class="form-control" id="addName" name="name" placeholder="ФИО" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addEmail">Email:</label>
+                        <input type="email" class="form-control" id="addEmail" name="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addPhone">Номер телефона:</label>
+                        <input type="text" class="form-control" id="addPhone" name="phone" placeholder="Телефон" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="payObjectModal" tabindex="-1" role="dialog" aria-labelledby="payObjectModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="payObjectModalLabel">Оплатить подписку</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-pay" class="alert alert-danger d-none"></div>
+                <form id="payObjectForm">
+                    <input type="hidden" id="payObjectId" name="id">
+                    <div class="form-group">
+                        <label for="addAddress">Сумма:</label>
+                        <input type="text" class="form-control" id="amount" name="amount" placeholder="Сумма" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addName">Комментарий:</label>
+                        <input type="text" class="form-control" id="comment" name="comment" placeholder="Комментарий" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addEmail">Начало подписки:</label>
+                        <input type="date" class="form-control" id="start" name="start" placeholder="Начало подписки" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addPhone">Окончание подписки:</label>
+                        <input type="date" class="form-control" id="end" name="end" placeholder="Окончание подписки" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="idObjectModal" tabindex="-1" role="dialog" aria-labelledby="idObjectModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="idObjectModalLabel">Загрузить файл идентификации</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-id" class="alert alert-danger d-none"></div>
+                <form id="idObjectForm" method="POST"  enctype="multipart/form-data">
+                    <input class="form-control" id="file" type="file"><br>
+                    <button type="submit" class="btn btn-primary">Загрузить</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editObjectModal" tabindex="-1" role="dialog" aria-labelledby="editObjectModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editObjectModalLabel">Редактировать объект</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editObjectForm">
+                    <div id="error-field-edit" class="alert alert-danger d-none"></div>
+                    <input type="hidden" id="editObjectId" name="id">
+                    <div class="form-group">
+                        <label for="editAddress">Адрес:</label>
+                        <input type="text" class="form-control" id="editAddress" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editName">ФИО:</label>
+                        <input type="text" class="form-control" id="editName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email:</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Номер телефона:</label>
+                        <input type="text" class="form-control" id="editPhone" name="phone" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteObjectsModal" tabindex="-1" role="dialog"
+     aria-labelledby="deleteObjectsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteObjectsModalLabel">Удалить объект(ы)</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-delete" class="alert alert-danger d-none"></div>
+                <button class="btn btn-primary" id="deleteSelectedObjectsBtn">Да</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // JavaScript функции для управления модальными окнами и отправки данных на сервер
+    $(document).ready(function () {
+        $('#selectAllObjects').change(function () {
+            $('.selectObjectCheckbox').prop('checked', $(this).prop('checked'));
+        });
+    });
+
+    $('#addObjectForm').submit(function (e) {
+        e.preventDefault();
+        // Отправляем данные на сервер для сохранения изменений
+        $.ajax({
+            type: "POST",
+            url: "/add_object",  // Замените на свой маршрут для редактирования пользователя
+            data: $('#addObjectForm').serialize(),
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закрываем модальное окно после успешного редактирования
+                    $('#addObjectModal').modal('hide');
+                    // Обновляем данные на странице или выполняем другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-add');
+                    errorField.text(response.message);
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-add');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+
+
+    function openEditObjectModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectObjectCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        console.log(selectedUserId, 123);
+        if (!selectedUserId){
+        };
+        // Отправляем запрос на сервер для получения данных о пользователе с выбранным ID
+        $.ajax({
+            url: '/get_object/' + selectedUserId,  // Замените на свой маршрут для получения данных пользователя
+            success: function (data) {
+                // Заполняем форму данными о пользователе
+                $('#editObjectId').val(data.id);
+                $('#editAddress').val(data.address);
+                $('#editName').val(data.name);
+                $('#editEmail').val(data.email);
+                $('#editPhone').val(data.phone);
+                // Открываем модальное окно
+                $('#editObjectModal').modal('show');
+            },
+            error: function () {
+                console.log(123);
+                var errorField = $('#error-field-float');
+                errorField.text("Объект не выбран");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 3000);
+            }
+        });
+    }
+
+    function openDeleteObjectsModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectObjectCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Объект не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#deleteObjectsModal').modal('show');
+        }
+    }
+
+    function openPayObjectModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectObjectCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Объект не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#payObjectModal').modal('show');
+        }
+    }
+
+    function openIDObjectModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectObjectCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Объект не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#idObjectModal').modal('show');
+        }
+    }
+
+    $('#idObjectForm').submit(function (e) {
+    e.preventDefault();
+
+    const selectedUserId = $('input.selectObjectCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+
+    if (selectedUserId) {
+        const formData = new FormData(this); // Создаем объект FormData
+        formData.append('file', $('input[type=file]')[0].files[0]);
+
+        $.ajax({
+            type: "POST",
+            url: "/load_identification/" + selectedUserId,
+            data: formData, // Передаем объект FormData вместо сериализованных данных
+            contentType: false, // Указываем, что jQuery не должен устанавливать Content-Type
+            processData: false, // Указываем, что jQuery не должен обрабатывать данные
+            success: function (response) {
+                if (response.message === "Success") {
+                    $('#idObjectModal').modal('hide');
+                    location.reload();
+                } else {
+                    showError("Ошибка при редактировании пользователя");
+                }
+            },
+            error: function (response) {
+                showError("Произошла ошибка при отправке данных на сервер");
+            }
+        });
+    } else {
+        showError("Произошла ошибка при отправке данных на сервер");
+    }
+
+    function showError(message) {
+        var errorField = $('#error-field-id');
+        errorField.text(message);
+        errorField.removeClass('d-none');
+
+        setTimeout(function () {
+            errorField.addClass('d-none');
+        }, 5000);
+    }
+});
+
+    $('#payObjectForm').submit(function (e) {
+        e.preventDefault();
+        // Отправляем данные на сервер для сохранения изменений
+        const selectedUserId = $('input.selectObjectCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (selectedUserId) {
+        $.ajax({
+            type: "POST",
+            url: "/pay/" + selectedUserId,  // Замените на свой маршрут для редактирования пользователя
+            data: $('#payObjectForm').serialize(),
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закрываем модальное окно после успешного редактирования
+                    $('#payObjectModal').modal('hide');
+                    // Обновляем данные на странице или выполняем другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-pay');
+                    errorField.text("Ошибка при редактировании пользователя");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-pay');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+        }
+        else {
+
+                var errorField = $('#error-field-pay');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+            }, 5000);
+        }
+    });
+
+    $('#editObjectForm').submit(function (e) {
+        e.preventDefault();
+        // Отправляем данные на сервер для сохранения изменений
+        $.ajax({
+            type: "POST",
+            url: "/edit_object",  // Замените на свой маршрут для редактирования пользователя
+            data: $('#editObjectForm').serialize(),
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закрываем модальное окно после успешного редактирования
+                    $('#editObjectModal').modal('hide');
+                    // Обновляем данные на странице или выполняем другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-edit');
+                    errorField.text("Ошибка при редактировании пользователя");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-edit');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+    $('#deleteSelectedObjectsBtn').click(function () {
+        // Определите всех выбранных пользователей, например, с помощью checkbox
+        const selectedUserIds = $('input.selectObjectCheckbox:checked').map(function () {
+            return $(this).closest('tr').find('td:nth-child(2)').text();
+        }).get();
+        var users = "";
+        for (let i = 0; i < selectedUserIds.length; i++) {
+          users += selectedUserIds[i] + "#";
+        }
+        console.log(users);
+
+        // Отправьте запрос на сервер для блокировки всех выбранных пользователей
+        $.ajax({
+            type: "POST",
+            url: "/delete_objects",  // Замените на свой маршрут для блокировки пользователей
+            data: { object_ids: users },
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закройте модальное окно после успешной блокировки
+                    $('#deleteObjectModal').modal('hide');
+                    // Обновите данные на странице или выполните другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-delete');
+                    errorField.text("Ошибка при удалении пользователей");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-delete');
+                errorField.text("Пользователи не выбраны");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+    function openAddObjectModal() {
+
+            $('#addObjectModal').modal('show');
+    }
+
+    function filterTable() {
+          var client = document.getElementById("client").value.toLowerCase();
+
+
+          var table = document.getElementById("table");
+          var rows = table.getElementsByTagName("tr");
+
+
+          for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+            var cells = row.getElementsByTagName("td");
+            if (cells.length >= 4) {
+            var cellClient = cells[3].innerText.toLowerCase();
+            console.log(cells[3].innerText, cellClient.includes(client));
+
+          var clientMatch = cellClient.includes(client) || client == 'все';
+
+            if (clientMatch) {
+              row.style.display = "";
+            } else {
+              row.style.display = "none";
+            }
+        }
+      }
+    }
+</script>
 {% endblock %}
 

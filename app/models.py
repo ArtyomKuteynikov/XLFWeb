@@ -48,4 +48,3 @@ class Payments(UserMixin, db.Model):
     end = db.Column(db.DateTime)
     show = db.Column(db.Integer, default=1)
     comment = db.Column(db.String(10000))
-

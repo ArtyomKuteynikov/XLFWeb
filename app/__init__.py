@@ -30,7 +30,7 @@ def create_app():
     app.register_blueprint(auth_blueprint)
 
     # blueprint for non-auth parts of app
-    from .main import main as main_blueprint
+    from .users import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
     def page_not_found(e):

@@ -4,180 +4,422 @@
 
 {% block content %}
 <style>
-        .card-title {
-            font-size: 16px;
-        }
+    .card-title {
+        font-size: 16px;
+    }
 
-        .form-control {
-            font-size: 12px;
-        }
+    .form-control {
+        font-size: 12px;
+    }
 
-        .btn {
-            font-size: 12px;
-        }
-
-
-        .tab.active {
-            background-color: #5071BF4D !important;
-        }
+    .btn {
+        font-size: 12px;
+    }
 
 
-        .tab:hover {
-            background-color: #5071BF4D !important;
-        }
-
-        tr.active {
-            background-color: #5071BF4D !important;
-        }
-
-        p {
-            font-size: 12px;
-        }
+    .tab.active {
+        background-color: #5071BF4D !important;
+    }
 
 
-        tr:hover {
-            background-color: #5071BF4D !important;
-        }
+    .tab:hover {
+        background-color: #5071BF4D !important;
+    }
 
-        table {
-            margin-top: 40px;
-        }
+    tr.active {
+        background-color: #5071BF4D !important;
+    }
 
-        th div {
-            margin-top: -40px;
-            position: absolute;
-        }
+    p {
+        font-size: 12px;
+    }
 
-        /* design */
-        table {
-            border-collapse: collapse;
-        }
 
-        tr:nth-child(even) {
-            background: #EEE;
-        }
+    tr:hover {
+        background-color: #5071BF4D !important;
+    }
 
-        p.mytabs {
-            font-size: 16px;
-            margin: 1;
-        }
-        table thead th {
-        white-space: nowrap;
-        font-size: 14px;
-        }
-        table tbody tr {
-        white-space: nowrap;
-        font-size: 14px;
-        }
+    table {
+        margin-top: 40px;
+    }
+
+    th div {
+        margin-top: -40px;
+        position: absolute;
+    }
+
+    /* design */
+    table {
+        border-collapse: collapse;
+    }
+
+    tr:nth-child(even) {
+        background: #EEE;
+    }
+
+    p.mytabs {
+        font-size: 16px;
+        margin: 1;
+    }
+    table thead th {
+    white-space: nowrap;
+    font-size: 14px;
+    }
+    table tbody tr {
+    white-space: nowrap;
+    font-size: 14px;
+    }
 
 
 </style>
 <div class="row">
-    <div class="col-xl-12">
-        <form method="POST" action="{{ url_for('main.sales') }}" class="row">
-            <div class="col-lg-1">
-                <label for="object">Объект</label>
-                <input class="form-control col" id="object" type="text" name="object" value="{{ object }}" placeholder="Объект">
+    <div class="accordion d-md-none" id="accordionExample">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <h6><i class="bi bi-funnel-fill"></i>Фильтр</h6>
+                    </button>
+                </h2>
             </div>
-            {% if current_user.role in [2, 3] %}
-                <div class="col-lg-1">
-                    <label for="client">Клиент</label>
-                    <input class="form-control col" type="text" id="client" name="client" value="{{ client }}" placeholder="Клиент">
-                </div>
-                {% if current_user.role == 3 %}
-                    <div class="col-lg-1">
-                        <label for="manager">Менеджер</label>
-                        <input class="form-control col" type="text" id="manager" name="manager" value="{{ manager }}" placeholder="Менеджер">
-                    </div>
-                {% endif %}
-            {% endif %}
-            <div class="col-lg-1">
-                <label for="payed">Дата</label>
-                <input class="form-control col" type="date" id="payed" name="payed" format="dd/mm/yyyy" value="{{ date }}">
-            </div>
-            <div class="col-lg-1">
-                <label for="amount">Сумма</label>
-                <input class="form-control col" type="number" name="amount" id="amount" value="{{ amount }}" placeholder="Сумма">
-            </div>
-            <div class="col-lg-2">
-                <label for="start">Начало периода</label>
-                <input class="form-control col" type="date" id="start" name="start" format="dd/mm/yyyy" value="{{ start }}">
-            </div>
-            <div class="col-lg-2">
-                <label for="end">Конец периода</label>
-                <input class="form-control col" type="date" id="end" name="finish" format="dd/mm/yyyy" value="{{ finish }}">
-            </div>
-            <div class="col-lg-1">
-                <label for="comment">Комментарий</label>
-                <input class="form-control col" type="text" name="comment" id="comment" value="{{ comment }}" placeholder="Комментарий">
-            </div>
-            {% if not filtered %}
-            <div class="col-lg-1" style="
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                    <form class="row d-lg-none">
+                        <div class="col-lg-1">
+                            <label for="object1">Объект</label>
+                            <input class="form-control col" type="text" name="object"
+                                   value="{{ object }}" id="object1"
+                                   placeholder="Объект" onkeyup="filterTableMobile()">
+                        </div>
+                        {% if current_user.role in [2, 3] %}
+                        <div class="col-lg-1">
+                            <label for="client1">Клиент</label>
+                            <input class="form-control col" type="text" name="client"
+                                   value="{{ client }}" id="client1"
+                                   placeholder="Клиент" onkeyup="filterTableMobile()">
+                        </div>
+                        {% if current_user.role == 3 %}
+                        <div class="col-lg-1">
+                            <label for="manager1">Менеджер</label>
+                            <th scope="col"><input class="form-control col"
+                                                   type="text" name="manager"
+                                                   value="{{ manager }}" id="manager1"
+                                                   placeholder="Менеджер" onkeyup="filterTableMobile()"></th>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        <div class="col-lg-1">
+                            <label for="dateFrom1">Дата</label>
+                            <input class="form-control col" type="date" id="dateFrom1"
+                                   name="payed" format="dd/mm/yyyy"
+                                   value="{{ start }}" onchange="filterTableMobile()">
+                            <input class="form-control col" type="date" id="dateTo1" name="payed"
+                                   format="dd/mm/yyyy"
+                                   value="{{ today }}" onchange="filterTableMobile()">
+                        </div>
+                        <div class="col-lg-1">
+                            <label for="amount1">Сумма</label>
+                            <input class="form-control col" type="number" name="amount"
+                                   value="{{ amount }}" id="amount1"
+                                   placeholder="Сумма" onkeyup="filterTableMobile()">
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="startFrom1">Начало периода</label>
+                            <input class="form-control col" type="date" id="startFrom1"
+                                   format="dd/mm/yyyy"
+                                   value="{{ start }}" onkeyup="filterTableMobile()">
+                            <input class="form-control col" type="date" id="startTo1"
+                                   format="dd/mm/yyyy"
+                                   value="{{ today }}" onkeyup="filterTableMobile()">
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="endFrom1">Конец периода</label>
+                            <input class="form-control col" type="date" id="endFrom1"
+                                   format="dd/mm/yyyy"
+                                   value="{{ today }}" onkeyup="filterTableMobile()">
+                            <input class="form-control col" type="date" id="endTo1"
+                                   format="dd/mm/yyyy"
+                                   value="{{ finish }}" onkeyup="filterTableMobile()">
+                        </div>
+                        <div class="col-lg-1">
+                            <label for="comment1">Комментарий</label>
+                            <input class="form-control col" type="text" name="comment"
+                                   value="{{ comment }}"
+                                   placeholder="Комментарий" id="comment1" onkeyup="filterTableMobile()">
+                        </div>
+                        <div class="col-lg-1" style="
     margin-top: 26px;
 ">
-                <button id="123" class="btn btn-info">
-                    <i class="bi bi-search"></i>
-                </button>
-            </div>
-            {% else %}
-            <div class="col-lg-1" style="
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 26px;
-">
-                <button class="btn btn-info">
-                    <i class="bi bi-search"></i>
-                </button>
-                 <a href="{{ url_for('main.sales') }}" class="btn btn-danger">
-                    <i class="bi bi-x-circle"></i>
-                </a>
-            </div>
-            {% endif %}
-        </form>
-    </div>
-    <div class="card" style="overflow-x:auto;">
-        <table class="table"
-              id="table">
-            <thead>
-            <tr>
-                <th scope="col">ID<br> </th>
-                <th data-filter-control="input">Объект</th>
-                {% if current_user.role in [2, 3] %}
-                    <th scope="col">Клиент</th>
-                    {% if current_user.role == 3 %}
-                        <th scope="col">Менеджер</th>
-                    {% endif %}
-                {% endif %}
-                <th scope="col">Время платежа</th>
-                <th scope="col">Сумма</th>
-                <th scope="col">Начало периода</th>
-                <th scope="col">Конец периода</th>
-                <th scope="col">Комментарий</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for i in data %}
-            <tr>
-                <td>{{ i.id }}</td>
-                <td>{{ i.object }}</td>
-                {% if current_user.role in [2, 3] %}
-                    <td>{{ i.client }}</td>
-                    {% if current_user.role == 3 %}
-                        <td>{{ i.manager }}</td>
-                    {% endif %}
-                {% endif %}
-                <td>{{ i.registered }}</td>
-                <td>{{ i.amount }}</td>
-                <td>{{ i.start }}</td>
-                <td>{{ i.end }}</td>
-                <td>{{ i.comment }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+                            <a href="{{ url_for('main.sales') }}" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        </div>
 
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card" style="overflow-x:auto;">
+            <table class="table"
+                   id="table">
+                <thead>
+                <tr>
+                    <th scope="col">№<br></th>
+                    {% if current_user.role in [2, 3] %}
+                    {% if current_user.role == 3 %}
+                    <th scope="col">Менеджер</th>
+                    {% endif %}
+                    <th scope="col">Клиент</th>
+                    {% endif %}
+                    <th data-filter-control="input">Объект</th>
+                    <th scope="col">Время платежа</th>
+                    <th scope="col">Сумма</th>
+                    <th scope="col">Начало периода</th>
+                    <th scope="col">Конец периода</th>
+                    <th scope="col">Комментарий</th>
+                </tr>
+                <tr>
+                    <form class="d-none d-md-block">
+                        <th scope="col"></th>
+                        {% if current_user.role in [2, 3] %}
+                        {% if current_user.role == 3 %}
+                        <th scope="col"><input class="d-none d-md-block form-control col"
+                                               type="text" name="manager"
+                                               value="{{ manager }}" id="manager"
+                                               placeholder="Менеджер" onkeyup="filterTable()"></th>
+                        {% endif %}
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="text" name="client"
+                                               value="{{ client }}" id="client"
+                                               placeholder="Клиент" onkeyup="filterTable()"></th>
+                        {% endif %}
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="text" name="object"
+                                               value="{{ object }}" id="object"
+                                               placeholder="Объект" onkeyup="filterTable()"></th>
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="date" id="dateFrom"
+                                               name="payed" format="dd/mm/yyyy"
+                                               value="{{ start }}" onchange="filterTable()">
+                            <input class="d-none d-md-block form-control col" type="date" id="dateTo" name="payed"
+                                   format="dd/mm/yyyy"
+                                   value="{{ today }}" onchange="filterTable()"></th>
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="number" name="amount"
+                                               value="{{ amount }}" id="amount"
+                                               placeholder="Сумма" onkeyup="filterTable()"></th>
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="date" id="startFrom"
+                                               format="dd/mm/yyyy"
+                                               value="{{ start }}" onkeyup="filterTable()">
+                            <input class="d-none d-md-block form-control col" type="date" id="startTo"
+                                   format="dd/mm/yyyy"
+                                   value="{{ today }}" onkeyup="filterTable()"></th>
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="date" id="endFrom"
+                                               format="dd/mm/yyyy"
+                                               value="{{ today }}" onkeyup="filterTable()">
+                            <input class="d-none d-md-block form-control col" type="date" id="endTo"
+                                   format="dd/mm/yyyy"
+                                   value="{{ finish }}" onkeyup="filterTable()"></th>
+                        <th scope="col"><input class="d-none d-md-block form-control col" type="text" name="comment"
+                                               value="{{ comment }}"
+                                               placeholder="Комментарий" id="comment" onkeyup="filterTable()"></th>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for j, i in enumerate(data) %}
+                <tr>
+                    <td>{{ j+1 }}</td>
+                    {% if current_user.role in [2, 3] %}
+                    {% if current_user.role == 3 %}
+                    <td>{{ i.manager }}</td>
+                    {% endif %}
+                    <td>{{ i.client }}</td>
+                    {% endif %}
+                    <td>{{ i.object }}</td>
+                    <td>{{ i.registered }}</td>
+                    <td>{{ i.amount }}</td>
+                    <td>{{ i.start }}</td>
+                    <td>{{ i.end }}</td>
+                    <td>{{ i.comment }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function getdate(dateString){
+            let [day, month, year] = dateString.split('.');
+            const dateObj = new Date(+year, +month - 1, +day);
+            return dateObj
+        }
+        function filterTable() {
+          var object = document.getElementById("object").value;
+          {% if current_user.role in [2, 3] %}
+            var client = document.getElementById("client").value;
+            {% if current_user.role == 3 %}
+                var manager = document.getElementById("manager").value;
+            {% endif %}
+          {% endif %}
+          var dateFrom = document.getElementById("dateFrom").value;
+          var dateTo = document.getElementById("dateTo").value;
+          var startFrom = document.getElementById("startFrom").value;
+          var startTo = document.getElementById("startTo").value;
+          var endFrom = document.getElementById("endFrom").value;
+          var endTo = document.getElementById("endTo").value;
+          var amount = parseFloat(document.getElementById("amount").value);
+          var comment = document.getElementById("comment").value.toLowerCase();
+
+
+          var table = document.getElementById("table");
+          var rows = table.getElementsByTagName("tr");
+
+
+          for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+            var cells = row.getElementsByTagName("td");
+
+
+            if (cells.length >= 3) {
+            console.log(cells[5].innerText, getdate(cells[5].innerText));
+            {% if current_user.role == 2 %}
+                var cellDate = getdate(cells[3].innerText);
+                var cellAmount = parseFloat(cells[4].innerText);
+                var cellStart = getdate(cells[5].innerText);
+                var cellEnd = getdate(cells[6].innerText);
+                var cellComment = cells[7].innerText.toLowerCase();
+                var cellObject = cells[2].innerText.toLowerCase();
+                var cellClient = cells[1].innerText.toLowerCase();
+            {% endif %}
+            {% if current_user.role == 3 %}
+                var cellDate = getdate(cells[4].innerText);
+                var cellAmount = parseFloat(cells[5].innerText);
+                var cellStart = getdate(cells[6].innerText);
+                var cellEnd = getdate(cells[7].innerText);
+                var cellComment = cells[8].innerText.toLowerCase();
+                var cellObject = cells[3].innerText.toLowerCase();
+                var cellClient = cells[2].innerText.toLowerCase();
+                var cellManger = cells[1].innerText.toLowerCase();
+          {% endif %}
+          {% if current_user.role == 1 %}
+                var cellDate = getdate(cells[2].innerText);
+                var cellAmount = parseFloat(cells[3].innerText);
+                var cellStart = getdate(cells[4].innerText);
+                var cellEnd = getdate(cells[5].innerText);
+                var cellComment = cells[6].innerText.toLowerCase();
+                var cellObject = cells[1].innerText.toLowerCase();
+          {% endif %}
+
+            var dateInRange = (!dateFrom || cellDate >= new Date(dateFrom)) && (!dateTo || cellDate <= new Date(dateTo));
+            var amountMatch = isNaN(amount) || cellAmount === amount;
+            var commentMatch = !comment || cellComment.includes(comment);
+            var startInRange = (!startFrom || cellStart >= new Date(startFrom)) && (!startTo || cellStart <= new Date(startTo));
+            var endInRange = (!endFrom || cellEnd >= new Date(endFrom)) && (!endTo || cellEnd <= new Date(endTo));
+            var objectMatch = !object || cellObject.includes(object);
+
+          {% if current_user.role in [2, 3] %}
+            var clientMatch = !client || cellClient.includes(client);
+          {% if current_user.role == 3 %}
+            var managerMatch = !manager || cellManager.includes(manager);
+          {% else %}
+            var managerMatch = true;
+          {% endif %}
+          {% else %}
+            var clientMatch = true;
+          {% endif %}
+
+            if (dateInRange && amountMatch && commentMatch && objectMatch && startInRange && endInRange && managerMatch && clientMatch) {
+              row.style.display = "";
+            } else {
+              row.style.display = "none";
+            }
+        }
+      }
+    }
+
+        function filterTableMobile() {
+          var object = document.getElementById("object1").value;
+          {% if current_user.role in [2, 3] %}
+            var client = document.getElementById("client1").value;
+            {% if current_user.role == 3 %}
+                var manager = document.getElementById("manager1").value;
+            {% endif %}
+          {% endif %}
+          var dateFrom = document.getElementById("dateFrom1").value;
+          var dateTo = document.getElementById("dateTo1").value;
+          var startFrom = document.getElementById("startFrom1").value;
+          var startTo = document.getElementById("startTo1").value;
+          var endFrom = document.getElementById("endFrom1").value;
+          var endTo = document.getElementById("endTo1").value;
+          var amount = parseFloat(document.getElementById("amount1").value);
+          var comment = document.getElementById("comment1").value.toLowerCase();
+
+
+          var table = document.getElementById("table");
+          var rows = table.getElementsByTagName("tr");
+
+
+          for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+            var cells = row.getElementsByTagName("td");
+
+
+            if (cells.length >= 3) {
+            console.log(cells[5].innerText, getdate(cells[5].innerText));
+            {% if current_user.role == 2 %}
+                var cellDate = getdate(cells[3].innerText);
+                var cellAmount = parseFloat(cells[4].innerText);
+                var cellStart = getdate(cells[5].innerText);
+                var cellEnd = getdate(cells[6].innerText);
+                var cellComment = cells[7].innerText.toLowerCase();
+                var cellObject = cells[2].innerText.toLowerCase();
+                var cellClient = cells[1].innerText.toLowerCase();
+            {% endif %}
+            {% if current_user.role == 3 %}
+                var cellDate = getdate(cells[4].innerText);
+                var cellAmount = parseFloat(cells[5].innerText);
+                var cellStart = getdate(cells[6].innerText);
+                var cellEnd = getdate(cells[7].innerText);
+                var cellComment = cells[8].innerText.toLowerCase();
+                var cellObject = cells[3].innerText.toLowerCase();
+                var cellClient = cells[2].innerText.toLowerCase();
+                var cellManger = cells[1].innerText.toLowerCase();
+          {% endif %}
+          {% if current_user.role == 1 %}
+                var cellDate = getdate(cells[2].innerText);
+                var cellAmount = parseFloat(cells[3].innerText);
+                var cellStart = getdate(cells[4].innerText);
+                var cellEnd = getdate(cells[5].innerText);
+                var cellComment = cells[6].innerText.toLowerCase();
+                var cellObject = cells[1].innerText.toLowerCase();
+          {% endif %}
+
+            var dateInRange = (!dateFrom || cellDate >= new Date(dateFrom)) && (!dateTo || cellDate <= new Date(dateTo));
+            var amountMatch = isNaN(amount) || cellAmount === amount;
+            var commentMatch = !comment || cellComment.includes(comment);
+            var startInRange = (!startFrom || cellStart >= new Date(startFrom)) && (!startTo || cellStart <= new Date(startTo));
+            var endInRange = (!endFrom || cellEnd >= new Date(endFrom)) && (!endTo || cellEnd <= new Date(endTo));
+            var objectMatch = !object || cellObject.includes(object);
+
+          {% if current_user.role in [2, 3] %}
+            var clientMatch = !client || cellClient.includes(client);
+          {% if current_user.role == 3 %}
+            var managerMatch = !manager || cellManager.includes(manager);
+          {% else %}
+            var managerMatch = true;
+          {% endif %}
+          {% else %}
+            var clientMatch = true;
+          {% endif %}
+
+            if (dateInRange && amountMatch && commentMatch && objectMatch && startInRange && endInRange && managerMatch && clientMatch) {
+              row.style.display = "";
+            } else {
+              row.style.display = "none";
+            }
+        }
+      }
+    }
+    </script>
+</div>
 {% endblock %}

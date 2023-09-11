@@ -1,0 +1,715 @@
+<!-- templates/stats.html -->
+
+{% extends "base.html" %}
+
+
+{% block content %}
+<style>
+
+    .modal-body {
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 16px;
+    }
+
+    .form-control {
+        font-size: 12px;
+    }
+
+    .btn {
+        font-size: 12px;
+    }
+
+    .tab.active {
+        background-color: #5071BF4D !important;
+    }
+
+
+    .tab:hover {
+        background-color: #5071BF4D !important;
+    }
+
+    tr.active {
+        background-color: #5071BF4D !important;
+    }
+
+    p {
+        font-size: 12px;
+    }
+
+
+    tr:hover {
+        background-color: #5071BF4D !important;
+    }
+
+    table {
+        margin-top: 40px;
+    }
+
+    th div {
+        margin-top: -40px;
+        position: absolute;
+    }
+
+    /* design */
+    table {
+        border-collapse: collapse;
+    }
+
+    tr:nth-child(even) {
+        background: #EEE;
+    }
+    table thead th {
+    white-space: nowrap;
+    font-size: 14px;
+    }
+    table tbody tr {
+    white-space: nowrap;
+    font-size: 14px;
+    }
+    p.mytabs {
+        font-size: 16px;
+        margin: 1;
+    }
+
+    h6 {
+        margin: 2.5%;
+    }
+    .menu.btn {
+    margin: 5px
+    }
+.tab.active {
+            background-color: #5071BF4D !important;
+        }
+
+
+        .tab:hover {
+            background-color: #5071BF4D !important;
+    }
+    .floating {
+    position: fixed;
+    top: 7%;
+    right: 5%;
+    z-index: 1;
+    opacity: 80%;
+    }
+</style>
+<div id="error-field-float" class="alert alert-danger floating d-none"></div>
+{% if current_user.role == 2 %}
+<div style="
+    text-align: center;
+    display: flex;
+">
+    <div class="col-lg-6">
+        <div class="card tab active"
+             onclick="window.location.href='/clients'; return false">
+            <div class="">
+                <h6>Клиенты</h6>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card tab"
+             onclick="window.location.href='/objects'; return false">
+            <div class="">
+                <h6>Объекты</h6>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body pt-3">
+                <div style="overflow-x:auto;">
+                    <div class="menu" style="text-align: left; display: flex;">
+                        <button class="menu btn btn-success" data-toggle="modal" onclick="openAddUserModal()"  data-backdrop="static" data-keyboard="false">Создать</button>
+                        <button class="menu btn btn-warning" onclick="openEditUserModal()">Редактировать</button>
+                        <button class="menu btn btn-danger" onclick="openDeleteUserModal()">Удалить
+                        </button>
+                        <button class="menu btn btn-secondary" onclick="openBlockUserModal()">
+                            Заблокировать
+                        </button>
+                        <button class="menu btn btn-primary" onclick="openUnblockUserModal()">
+                            Разблокировать
+                        </button>
+                        <button class="menu btn btn-info" onclick="openPasswordUserModal()">Задать
+                            пароль
+                        </button>
+                    </div>
+                    <table class="table container">
+                        <thead>
+                        <tr class="header">
+                            <th scope="col"><input type="checkbox" id="selectAllUsers"></th>
+                            <th scope="col">№</th>
+                            <th scope="col">Логин</th>
+                            {% if current_user.role in [1, 2] %}<th scope="col">Организация</th>{% endif %}
+                            <th scope="col">ФИО</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Номер телефона</th>
+                            <th scope="col">Статус</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for j, user in enumerate(users) %}
+                        <tr>
+                            <td><input type="checkbox" class="selectUserCheckbox"></td>
+                            <td style="display: none">{{ user.id }}</td>
+                            <td>{{ j+1 }}</td>
+                            <td>{{ user.login }}</td>
+                            {% if current_user.role  in [1, 2] %}<td>{{ user.org_name }}</td>{% endif %}
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.status }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<script>
+    // JavaScript функции для управления модальными окнами и отправки данных на сервер
+    $(document).ready(function () {
+        $('#selectAllUsers').change(function () {
+            $('.selectUserCheckbox').prop('checked', $(this).prop('checked'));
+        });
+
+        // Реализуйте функции для открытия модальных окон и отправки данных на сервер
+    });
+</script>
+<!-- Модальное окно для редактирования пользователя -->
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Редактировать пользователя</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <div id="error-field-edit" class="alert alert-danger d-none"></div>
+                    <input type="hidden" id="editUserId" name="id">
+                    <div class="form-group">
+                        <label for="editLogin">Логин:</label>
+                        <input type="text" class="form-control" id="editLogin" name="login" required>
+                    </div>
+                    {% if current_user.role  in [1, 2] %}<div class="form-group">
+                        <label for="editLogin">Организация:</label>
+                        <input type="text" class="form-control" id="editOrg" name="org_name" required>
+                    </div>{% endif %}
+                    <div class="form-group">
+                        <label for="editName">ФИО:</label>
+                        <input type="text" class="form-control" id="editName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email:</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Номер телефона:</label>
+                        <input type="text" class="form-control" id="editPhone" name="phone" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Добавить пользователя</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-add" class="alert alert-danger d-none"></div>
+                <form id="addUserForm">
+                    <input type="hidden" id="addUserId" name="id">
+                    <div class="form-group">
+                        <label for="editLogin">Логин:</label>
+                        <input type="text" class="form-control" id="addLogin" name="login"
+                               placeholder="Логин" required>
+                    </div>
+                    {% if current_user.role  in [1, 2] %}
+                    <div class="form-group">
+                        <label for="editName">Организация:</label>
+                        <input type="text" class="form-control" id="addOrg" name="org_name"
+                               placeholder="Организация" required>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label for="editName">ФИО:</label>
+                        <input type="text" class="form-control" id="addName" name="name" placeholder="ФИО"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email:</label>
+                        <input type="email" class="form-control" id="addEmail" name="email"
+                               placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Номер телефона:</label>
+                        <input type="text" class="form-control" id="addPhone" name="phone"
+                               placeholder="Телефон" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Пароль:</label>
+                        <input type="password" class="form-control" id="addPassword" name="password"
+                               placeholder="Пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="passwordUserModal" tabindex="-1" role="dialog" aria-labelledby="passwordUserModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordUserModalLabel">Сменить пароль пользователя</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-password" class="alert alert-danger d-none"></div>
+                <form id="passwordUserForm">
+                    <div class="form-group">
+                        <label for="editLogin">Новый пароль:</label>
+                        <input type="text" class="form-control" id="password" name="password"
+                               placeholder="Новый пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="blockUserModal" tabindex="-1" role="dialog"
+     aria-labelledby="blockUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="blockUserModalLabel">Заблокировать пользователя(ей)</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-block" class="alert alert-danger d-none"></div>
+                <button class="btn btn-primary" id="blockSelectedUsersBtn">Да</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="unblockUserModal" tabindex="-1" role="dialog"
+     aria-labelledby="unblockUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unblockUserModalLabel">Разблокировать пользователя(ей)</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-unblock" class="alert alert-danger d-none"></div>
+                <button class="btn btn-primary" id="unblockSelectedUsersBtn">Да</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog"
+     aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel">Удалить пользователя(ей)</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" data-bs-dismiss="modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="error-field-delete" class="alert alert-danger d-none"></div>
+                <button class="btn btn-primary" id="deleteSelectedUsersBtn">Да</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#addUserForm').submit(function (e) {
+        e.preventDefault();
+        // Отправляем данные на сервер для сохранения изменений
+        $.ajax({
+            type: "POST",
+            url: "/add_user",  // Замените на свой маршрут для редактирования пользователя
+            data: $('#addUserForm').serialize(),
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закрываем модальное окно после успешного редактирования
+                    $('#addUserModal').modal('hide');
+                    // Обновляем данные на странице или выполняем другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-add');
+                    errorField.text(response.message);
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-add');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+    $('#passwordUserForm').submit(function (e) {
+        e.preventDefault();
+        const selectedUserId = $('input.selectUserCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        // Отправляем данные на сервер для сохранения изменений
+        $.ajax({
+            type: "POST",
+            url: "/password_user/" + selectedUserId,  // Замените на свой маршрут для редактирования пользователя
+            data: $('#passwordUserForm').serialize(),
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закрываем модальное окно после успешного редактирования
+                    $('#passwordUserModal').modal('hide');
+                    // Обновляем данные на странице или выполняем другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-password');
+                    errorField.text(response.message);
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-add');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+
+    function openEditUserModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectUserCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+        };
+        // Отправляем запрос на сервер для получения данных о пользователе с выбранным ID
+        $.ajax({
+            url: '/get_user/' + selectedUserId,  // Замените на свой маршрут для получения данных пользователя
+            success: function (data) {
+                // Заполняем форму данными о пользователе
+                $('#editUserId').val(data.id);
+                $('#editLogin').val(data.login);
+                $('#editOrg').val(data.org_name);
+                $('#editName').val(data.name);
+                $('#editEmail').val(data.email);
+                $('#editPhone').val(data.phone);
+                // Открываем модальное окно
+                $('#editUserModal').modal('show');
+            },
+            error: function () {
+                console.log(123);
+                var errorField = $('#error-field-float');
+                errorField.text("Пользователь не выбран");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 3000);
+            }
+        });
+    }
+    function openBlockUserModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectUserCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Пользователь не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#blockUserModal').modal('show');
+        }
+    }
+
+    function openDeleteUserModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectUserCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Пользователь не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#deleteUserModal').modal('show');
+        }
+    }
+
+    function openUnblockUserModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectUserCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Пользователь не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#unblockUserModal').modal('show');
+        }
+    }
+    function openAddUserModal() {
+
+            $('#addUserModal').modal('show');
+    }
+
+    function openPasswordUserModal() {
+        // Определяем выбранного пользователя
+        const selectedUserId = $('input.selectUserCheckbox:checked').first().closest('tr').find('td:nth-child(2)').text();
+        if (!selectedUserId){
+            console.log(123);
+            var errorField = $('#error-field-float');
+            errorField.text("Пользователь не выбран");
+            errorField.removeClass('d-none');
+
+            setTimeout(function () {
+                errorField.addClass('d-none');
+            }, 3000);
+        }
+        else {
+            $('#passwordUserModal').modal('show');
+        }
+    }
+
+    // Обработчик формы редактирования пользователя
+    $('#editUserForm').submit(function (e) {
+        e.preventDefault();
+        // Отправляем данные на сервер для сохранения изменений
+        $.ajax({
+            type: "POST",
+            url: "/edit_user",  // Замените на свой маршрут для редактирования пользователя
+            data: $('#editUserForm').serialize(),
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закрываем модальное окно после успешного редактирования
+                    $('#editUserModal').modal('hide');
+                    // Обновляем данные на странице или выполняем другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-edit');
+                    errorField.text("Ошибка при редактировании пользователя");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-edit');
+                errorField.text("Произошла ошибка при отправке данных на сервер");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+    $('#blockSelectedUsersBtn').click(function () {
+        // Определите всех выбранных пользователей, например, с помощью checkbox
+        const selectedUserIds = $('input.selectUserCheckbox:checked').map(function () {
+            return $(this).closest('tr').find('td:nth-child(2)').text();
+        }).get();
+        var users = "";
+        for (let i = 0; i < selectedUserIds.length; i++) {
+          users += selectedUserIds[i] + "#";
+        }
+
+        // Отправьте запрос на сервер для блокировки всех выбранных пользователей
+        $.ajax({
+            type: "POST",
+            url: "/block_users",  // Замените на свой маршрут для блокировки пользователей
+            data: { user_ids: users },
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закройте модальное окно после успешной блокировки
+                    $('#blockUserModal').modal('hide');
+                    // Обновите данные на странице или выполните другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-block');
+                    errorField.text("Ошибка при блокировке пользователей");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-block');
+                errorField.text("Пользователи не выбраны");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+
+    $('#unblockSelectedUsersBtn').click(function () {
+        // Определите всех выбранных пользователей, например, с помощью checkbox
+        const selectedUserIds = $('input.selectUserCheckbox:checked').map(function () {
+            return $(this).closest('tr').find('td:nth-child(2)').text();
+        }).get();
+        var users = "";
+        for (let i = 0; i < selectedUserIds.length; i++) {
+          users += selectedUserIds[i] + "#";
+        }
+
+        // Отправьте запрос на сервер для блокировки всех выбранных пользователей
+        $.ajax({
+            type: "POST",
+            url: "/unblock_users",  // Замените на свой маршрут для блокировки пользователей
+            data: { user_ids: users },
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закройте модальное окно после успешной блокировки
+                    $('#blockUserModal').modal('hide');
+                    // Обновите данные на странице или выполните другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-unblock');
+                    errorField.text("Ошибка при разблокировке пользователей");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-unblock');
+                errorField.text("Пользователи не выбраны");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+
+    $('#deleteSelectedUsersBtn').click(function () {
+        // Определите всех выбранных пользователей, например, с помощью checkbox
+        const selectedUserIds = $('input.selectUserCheckbox:checked').map(function () {
+            return $(this).closest('tr').find('td:nth-child(2)').text();
+        }).get();
+        var users = "";
+        for (let i = 0; i < selectedUserIds.length; i++) {
+          users += selectedUserIds[i] + "#";
+        }
+
+        // Отправьте запрос на сервер для блокировки всех выбранных пользователей
+        $.ajax({
+            type: "POST",
+            url: "/delete_users",  // Замените на свой маршрут для блокировки пользователей
+            data: { user_ids: users },
+            success: function (response) {
+                if (response.message === "Success") {
+                    // Закройте модальное окно после успешной блокировки
+                    $('#blockUserModal').modal('hide');
+                    // Обновите данные на странице или выполните другие действия
+                    location.reload();
+                } else {
+                    var errorField = $('#error-field-delete');
+                    errorField.text("Ошибка при удалении пользователей");
+                    errorField.removeClass('d-none');
+
+                    setTimeout(function () {
+                        errorField.addClass('d-none');
+                    }, 5000);
+                }
+            },
+            error: function () {
+                var errorField = $('#error-field-delete');
+                errorField.text("Пользователи не выбраны");
+                errorField.removeClass('d-none');
+
+                setTimeout(function () {
+                    errorField.addClass('d-none');
+                }, 5000);
+            }
+        });
+    });
+</script>
+{% endblock %}
+
