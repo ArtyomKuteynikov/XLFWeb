@@ -8,7 +8,8 @@ from flask_login import login_required, current_user, logout_user
 import os
 
 from werkzeug.security import generate_password_hash
-
+from io import BytesIO
+from flask import send_file
 from . import db
 from app.models import User, Payments, Shops
 
@@ -156,16 +157,13 @@ def pay(id):
 
 @main.route('/load_identification/<int:id>', methods=['POST'])
 def load_identification(id):
-    print(request.files)
     try:
         file = request.files['file']
-        filename = 'IDFile' + str(id) + '.' + file.filename.split('.')[-1]
-        file.save(r'/root/XLF/app/static/ids/' + filename)
-        _ = Shops.query.filter_by(id=id).update({'ident': filename})
+        _ = Shops.query.filter_by(id=id).update({'ident': file.read()})
         db.session.commit()
         return {'message': 'Success'}
     except Exception as e:
-        return {'message': str(e)+os.getcwd() + r'/app/static/ids/' + filename}
+        return {'message': str(e)}
 
 
 @main.route('/edit_user', methods=['POST'])
@@ -256,7 +254,19 @@ def delete_users():
         if user:
             user.show = 0
             db.session.commit()
+        _ = Shops.query.filter_by(user_id=user_id).update({'show': 0})
+        db.session.commit()
     return {"message": "Success"}
+
+
+@main.route('/file/<int:id>')
+def image_route(id):
+    image_bytes = Shops.query.filter_by(id=id).first().ident
+    if image_bytes:
+        bytes_io = BytesIO(image_bytes)
+        return send_file(bytes_io, download_name=f'Объект_{Shops.query.filter_by(id=id).first().address}.dat', mimetype='dat')
+    else:
+        return redirect(url_for('main.objects'))
 
 
 @main.route('/delete_objects', methods=['POST'])
@@ -324,8 +334,9 @@ def sales():
                 )
     start_raw = (datetime.now() - timedelta(days=91)).strftime('%Y-%m-%d')
     finish_raw = (datetime.now() + timedelta(days=91)).strftime('%Y-%m-%d')
-    today_raw = datetime.now().strftime('%Y-%m-%d')
-    return render_template('sales.html', start=start_raw, finish=finish_raw, today=today_raw,
+    today_1_raw = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    today_0_raw = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    return render_template('sales.html', start=start_raw, finish=finish_raw, today_0=today_0_raw, today_1=today_1_raw,
                            data=result, object=object_search, filtered=filtered, client=client_search,
                            manager=manager_search, comment=comment_search, page_title='История',
                            date=date.strftime('%Y-%m-%d') if date else '', amount=amount_search if amount_search else '', enumerate=enumerate)

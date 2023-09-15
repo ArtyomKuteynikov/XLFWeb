@@ -135,20 +135,24 @@
                         <tr>
                             {% if current_user.role == 2 %} <th scope="col"><input type="checkbox" id="selectAllObjects"></th> {% endif %}
                             <th scope="col">№</th>
-                            <th scope="col" style="min-width: 200px">Клиент<br>
-                                <select class="form-select" onchange="filterTable()" id="client">
-                                    <option value="ВСЕ">Все</option>
-                                    {% for i in users %}
-                                        <option value="{{ i.name }}">{{ i.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </th>
+                            {% if current_user.role == 2 %}
+                                <th scope="col" style="min-width: 200px">Клиент<br>
+                                    <select class="form-select" onchange="filterTable()" id="client">
+                                        <option value="ВСЕ">Все</option>
+                                        {% for i in users %}
+                                            <option value="{{ i.name }}">{{ i.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </th>
+                            {% endif %}
                             <th scope="col">Адрес</th>
                             <th scope="col">ФИО</th>
                             <th scope="col">Номер телефона</th>
                             <th scope="col">E-mail</th>
                             <th scope="col">Дата окончания подписки</th>
-                            {% if current_user.role == 2 %}<th scope="col">Файл</th>{% endif %}
+                            {% if current_user.role == 2 %}
+                                <th scope="col">Файл</th>
+                            {% endif %}
                         </tr>
                         </thead>
                         <tbody>
@@ -157,7 +161,9 @@
                             {% if current_user.role == 2 %} <td><input type="checkbox" class="selectObjectCheckbox"></td> {% endif %}
                             <td style="display: none">{{ i.id }}</td>
                             <td>{{ j + 1 }}</td>
+                            {% if current_user.role == 2 %}
                             <td>{{ i.client }}</td>
+                            {% endif %}
                             <td>
                                 {{ i.address }}
                             </td>
@@ -173,9 +179,15 @@
                             <td>
                                 {{ i.end }}
                             </td>
-                            {% if current_user.role == 2 %}<td>
-                                {% if i.ident %}<a href="{{ i.ident }}" target="_blank" class="is-rounded btn btn-primary"><i class="bi bi-download"></i></a>{% endif %}
-                            </td>{% endif %}
+                            {% if current_user.role == 2 %}
+                                <td scope="col">
+                                    {% if i.ident %}
+                                        <a class="btn btn-primary" href="/file/{{ i.id }}">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                         </tbody>
